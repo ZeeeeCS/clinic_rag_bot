@@ -1,0 +1,20 @@
+# config/settings.yaml
+models:
+  generation: "gemini-2.5-flash-lite"
+  safety_agent: "gemini-2.5-flash"   # more careful model for the safety check
+  text_embedding: "text-embedding-3-small"
+  image_embedding: "clip-ViT-B-32"
+
+retrieval:
+  top_k: 4
+  similarity_threshold: 0.55   # below this → treat as "no confident match"
+
+safety:
+  hard_escalation_keywords: ["chest pain", "can't breathe", "bleeding heavily", "suicidal", "want to die", "overdose"]
+
+logging:
+  level: "INFO"
+  log_file: "logs/app.log"
+vector_store:
+  mode: "cloud"   # switch to "cloud" when you deploy
+  persist_path: "./data/chroma_db"

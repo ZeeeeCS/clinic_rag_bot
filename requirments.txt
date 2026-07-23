@@ -1,0 +1,22 @@
+# requirements.txt — Python dependencies for Clinic RAG Bot
+
+# Phase 1 — Foundations
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# Phase 2 — Data + Retrieval
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# Phase 3 — LLM (Gemini — matches config/settings.yaml)
+google-generativeai>=0.8.0
+
+# Phase 2 — Embeddings 
+openai>=1.0.0
+
+# Phase 2 — PubMed retriever (Entrez API)
+biopython>=1.84
+
+# Phase 6 — Telegram bot
+python-telegram-bot>=21.0
+nest_asyncio>=1.6.0
