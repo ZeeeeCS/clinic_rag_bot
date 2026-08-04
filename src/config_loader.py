@@ -1,10 +1,16 @@
 """config_loader.py — loads settings.yaml into a Config object."""
 import os
+from pathlib import Path
+
 import yaml
 from dotenv import load_dotenv
-load_dotenv()
 
-# Load environment variables from .env
+ROOT_DIR = Path(__file__).resolve().parent.parent
+for env_path in (ROOT_DIR / ".env", ROOT_DIR / "env"):
+    if env_path.exists():
+        load_dotenv(env_path, override=False)
+
+# Load environment variables from .env or env
 
 class ConfigLoader:
     config = {}

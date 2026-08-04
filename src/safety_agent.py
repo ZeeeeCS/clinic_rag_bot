@@ -1,7 +1,8 @@
 """safety_agent.py — SafetyAgent (hard-rule + LLM judgment layers)."""
+import json
 import re
 from dataclasses import dataclass
-from json import parse_json
+
 HARD_TRIGGERS = [
     "chest pain", "can't breathe", "difficulty breathing",
     "bleeding heavily", "won't stop bleeding",
@@ -34,7 +35,7 @@ class SafetyAgent:
     def parse_json(self, json_string: str) -> dict:
         """Parse a JSON string into a dictionary."""
         try:
-            return parse_json(json_string)
+            return json.loads(json_string)
         except Exception as e:
             return {"error": str(e)}
     def run(self, user_input: str) -> str:
