@@ -10,6 +10,8 @@ sentence-transformers>=3.0.0
 
 # Phase 3 — LLM (Gemini — matches config/settings.yaml)
 google-generativeai>=0.8.0
+# Optional: use Groq as an alternative model provider
+groq>=0.11.0
 
 # Phase 2 — Embeddings 
 openai>=1.0.0

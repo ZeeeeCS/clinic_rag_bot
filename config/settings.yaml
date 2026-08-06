@@ -1,10 +1,18 @@
 # config/settings.yaml
 models:
-  generation: "gemini-2.5-flash-lite"
-  safety_agent: "gemini-2.5-flash"   # more careful model for the safety check
+  generation: "llama-3.3-70b-versatile"
+  generation_provider: "groq"
+  safety_agent: "gemini-2.5-flash"
+  safety_agent_provider: "gemini"
   text_embedding: "text-embedding-3-small"
   image_embedding: "clip-ViT-B-32"
-
+generator:
+  primary_model: "llama-3.3-70b-versatile"
+  fallback_model: "llama-3.1-8b-instant"
+  temperature: 0.3
+  max_tokens: 1024
+  api_key_env: "GROQ_API_KEY"
+  base_url: "https://api.groq.com/openai/v1"
 retrieval:
   top_k: 4
   similarity_threshold: 0.55   # below this → treat as "no confident match"
@@ -16,5 +24,5 @@ logging:
   level: "INFO"
   log_file: "logs/app.log"
 vector_store:
-  mode: "cloud"   # switch to "cloud" when you deploy
+  mode: "local"   # switch to "cloud" when you deploy
   persist_path: "./data/chroma_db"
