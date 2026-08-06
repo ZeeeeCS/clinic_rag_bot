@@ -28,6 +28,26 @@ class ConfigLoader:
         if key in self.env_vars:
             return self.env_vars[key]
         return self.config.get(key, default)
+
+    def get_model_setting(self, name, default=None):
+        models = self.config.get("models", {})
+        if not isinstance(models, dict):
+            return default
+
+        value = models.get(name)
+        if isinstance(value, dict):
+            provider = value.get("provider") or "groq"
+            return {
+                "model": value.get("model") or value.get("name") or "",
+                "provider": provider,
+            }
+
+        if isinstance(value, str):
+            provider = models.get(f"{name}_provider") or "groq"
+            return {"model": value, "provider": provider}
+
+        return default
+
     def get_all(self):
         return self.config
             

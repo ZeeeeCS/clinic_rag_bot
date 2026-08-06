@@ -1,55 +1,73 @@
-"""ingestion.py — nhs.uk, mayoclinic.org, medlineplus.gov."""
+"""ingestion.py — load the prepared local JSON data into the vector store."""
 
 import json
-import os
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from typing import List, Dict, Any
-from embeddings import EmbeddingModelLocal
-from vector_store import VectorStore
-from logger import Logger
+from pathlib import Path
+from typing import Any, Dict, List
+
 from config_loader import ConfigLoader
+from logger import Logger
+from vector_store import VectorStore
 
 
-logger = Logger()
-config = ConfigLoader()
-embedding_model = EmbeddingModelLocal()
-vector_store = VectorStore()
 class Ingestion:
-    
     def __init__(self):
         self.config = ConfigLoader()
         self.logger = Logger()
-        self.embedding_model = EmbeddingModelLocal()
         self.vector_store = VectorStore()
-        self.nhs_urls = self.config.get("nhs_urls", [])
-        self.mayo_urls = self.config.get("mayo_urls", [])
-        self.medlineplus_urls = self.config.get("medlineplus_urls", [])
+        self.data_root = Path(__file__).resolve().parent.parent / "data" / "raw"
+
+    def _load_json_documents(self, folder_name: str) -> List[Dict[str, Any]]:
+        folder = self.data_root / folder_name
+        if not folder.exists():
+            return []
+
+        documents: List[Dict[str, Any]] = []
+        for path in sorted(folder.glob("*.json")):
+            try:
+                with path.open("r", encoding="utf-8") as handle:
+                    payload = json.load(handle)
+            except Exception as exc:
+                self.logger.logger.warning("Skipping %s: %s", path.name, exc)
+                continue
+
+            title = payload.get("title") or path.stem
+            content = payload.get("content") or ""
+            source = payload.get("source") or str(path)
+            documents.append({
+                "title": title,
+                "content": content,
+                "source": source,
+            })
+
+        return documents
+
     def ingest_nhs(self):
-        for url in self.nhs_urls:
-            response = requests.get(url)
-            soup = BeautifulSoup(response.text, "html.parser")
-            content = soup.get_text()
-            self.vector_store.add_document(content, url)
+        for item in self._load_json_documents("nhs"):
+            self.vector_store.add_document(
+                title=item["title"],
+                content=item["content"],
+                source=item["source"],
+            )
+
     def ingest_mayo(self):
-        for url in self.mayo_urls:
-            response = requests.get(url)
-            soup = BeautifulSoup(response.text, "html.parser")
-            content = soup.get_text()
-            self.vector_store.add_document(content, url)
+        for item in self._load_json_documents("mayo"):
+            self.vector_store.add_document(
+                title=item["title"],
+                content=item["content"],
+                source=item["source"],
+            )
+
     def ingest_medlineplus(self):
-        for url in self.medlineplus_urls:
-            response = requests.get(url)
-            soup = BeautifulSoup(response.text, "html.parser")
-            content = soup.get_text()
-            self.vector_store.add_document(content, url)
-#     def ingest_all(self):
-#         self.ingest_nhs()
-#         self.ingest_mayo()
-#         self.ingest_medlineplus()
-#         return self.vector_store.get_all_documents()
-# if __name__ == "__main__":
-#     ingestion = Ingestion()
-#     ingestion.ingest_all()
-#     print(ingestion.vector_store.get_all_documents())
+        for item in self._load_json_documents("medlineplus"):
+            self.vector_store.add_document(
+                title=item["title"],
+                content=item["content"],
+                source=item["source"],
+            )
+
+    def ingest_all(self):
+        self.ingest_nhs()
+        self.ingest_mayo()
+        self.ingest_medlineplus()
+        return self.vector_store
+

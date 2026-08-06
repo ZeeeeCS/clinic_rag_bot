@@ -33,5 +33,7 @@ class PubMedRetriever:
         self.logger = Logger()
 
     def retrieve(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
+        
         self.logger.logger.info("PubMed retrieval is not enabled yet for query: %s", query)
         return []
+
