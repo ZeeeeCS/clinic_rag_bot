@@ -101,19 +101,7 @@ class VectorStore:
             self.logger.logger.error(f"Error querying collection '{collection_name}': {e}")
             return {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
 
-    # def add_images(self, ids, metadatas, embeddings, collection_name="clinic_data"):
-    #     # For the multimodal stretch goal, we insert using precomputed embeddings
-    #     collection = self._get_collection(collection_name)
-    #     try:
-    #         collection.add(
-    #             ids=ids,
-    #             metadatas=metadatas,
-    #             embeddings=embeddings
-    #         )
-    #         self.logger.logger.info(f"Successfully added {len(ids)} images to collection '{collection_name}'")
-    #     except Exception as e:
-    #         self.logger.logger.error(f"Error adding images to collection '{collection_name}': {e}")
-    #         raise e
+
     def get_all_document(self):
         return self
 if __name__ == "__main__":
