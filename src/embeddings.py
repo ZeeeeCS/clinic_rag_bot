@@ -1,25 +1,3 @@
-# from sentence_transformers import SentenceTransformer
-
-
-
-# class EmbeddingModelLocal:
-#     def __init__(self):
-#         self.model = SentenceTransformer("pritamdeka/S-PubMedBert-MS-MARCO")
-
-
-#     def _fallback_vector(self, text: str) -> list[float]:
-#         if not text:
-#             return [0.0] * 4
-#         length = max(4, min(8, len(text.split()) // 10 + 4))
-#         return [float((ord(char) % 7) / 10) for char in text[:length]] + [0.0] * max(0, 4 - length)
-
-#     def embed_text(self, text: str) -> list[float]:
-#         if self.model is None:
-#             return self._fallback_vector(text)
-#         return self.model.encode(text).tolist()
-
-
-
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
