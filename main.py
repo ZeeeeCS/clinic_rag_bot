@@ -5,14 +5,20 @@ import argparse
 import asyncio
 import os
 import sys
-from bot import telegram_bot
-from src.pipeline import ClinicRAGPipeline
-from src.logger import Logger
-import importlib
+from pathlib import Path
+
 from dotenv import load_dotenv
 load_dotenv()
 
-# Initialize global components
+# Path setup so 'from src.xxx' works
+ROOT_DIR = Path(__file__).resolve().parent
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from src.pipeline import ClinicRAGPipeline
+from src.logger import Logger
+
 logger = Logger()
 rag_pipeline = ClinicRAGPipeline()
 
@@ -26,17 +32,15 @@ def process_request(user_text: str) -> str:
         return "Please provide a health-related question or symptom description."
 
     try:
-        # The pipeline now handles safety, routing, retrieval, and generation internally
         return rag_pipeline.process(user_text)
     except Exception as e:
         logger.logger.error(f"Pipeline error: {e}")
         return "An error occurred while processing your request. Please try again later."
 
 def run_telegram_bot() -> None:
-    
+    """LOCAL import prevents circular import."""
     try:
         from bot.telegram_bot import run_bot as telegram_run_bot
-        
         asyncio.run(telegram_run_bot())
     except Exception as exc:
         logger.logger.error("Unable to start the Telegram bot: %s", exc)

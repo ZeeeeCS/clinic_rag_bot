@@ -58,7 +58,6 @@ async def run_bot():
     await application.updater.start_polling(drop_pending_updates=True)
     print("Bot is now polling. Send a message on Telegram!")
 
-    # Block forever so the bot doesn't exit
     try:
         await asyncio.Event().wait()
     except (KeyboardInterrupt, asyncio.CancelledError):

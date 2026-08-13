@@ -13,7 +13,7 @@ class VectorStore:
         self.config = ConfigLoader()
         self.logger = Logger()
 
-        vs_config = self.config.get("vector_store", {})
+        vs_config = self.config.get("vector_store")
         self.mode = str(vs_config.get("mode", "local")).strip().lower()
 
         self.client = None
@@ -26,24 +26,6 @@ class VectorStore:
             return
 
         try:
-            if self.mode == "cloud":
-                tenant = os.getenv("CHROMA_TENANT") or vs_config.get("tenant", "") or ""
-                database = os.getenv("CHROMA_DATABASE") or vs_config.get("database", "") or ""
-                api_key = os.getenv("CHROMA_API_KEY") or vs_config.get("api_key", "") or ""
-
-                if not tenant or not database or not api_key:
-                    self.logger.logger.warning(
-                        "Cloud Chroma config is incomplete; falling back to local persistent storage"
-                    )
-                    self.mode = "local"
-
-                if self.mode == "cloud":
-                    self.logger.logger.info("Initializing Chroma CloudClient...")
-                    self.client = chromadb.CloudClient(
-                        tenant=tenant,
-                        database=database,
-                        api_key=api_key,
-                    )
 
             if self.mode == "local":
                 self.logger.logger.info("Initializing Chroma PersistentClient (local mode)...")
@@ -51,8 +33,8 @@ class VectorStore:
                 os.makedirs(os.path.dirname(os.path.abspath(persist_path)), exist_ok=True)
                 self.client = chromadb.PersistentClient(path=persist_path)
 
-            self.clinic_collection = self.client.get_or_create_collection("clinic_data")
-            self.pubmed_collection = self.client.get_or_create_collection("pubmed_cache")
+                self.clinic_collection = self.client.get_or_create_collection("clinic_data")
+                self.pubmed_collection = self.client.get_or_create_collection("pubmed_cache")
         except Exception as exc:
             self.logger.logger.warning("Falling back to no-op vector store: %s", exc)
 
@@ -95,7 +77,7 @@ class VectorStore:
         embedding_vector = embedding
         if embedding_vector is None:
             embedding_vector = self.embedding_model.embed_text(document_text) if hasattr(self, "embedding_model") and self.embedding_model is not None else None
-
+        
         self.add_documents(
             documents=[document_text],
             metadatas=[metadata],
@@ -119,19 +101,22 @@ class VectorStore:
             self.logger.logger.error(f"Error querying collection '{collection_name}': {e}")
             return {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
 
-    def add_images(self, ids, metadatas, embeddings, collection_name="clinic_data"):
-        # For the multimodal stretch goal, we insert using precomputed embeddings
-        collection = self._get_collection(collection_name)
-        try:
-            collection.add(
-                ids=ids,
-                metadatas=metadatas,
-                embeddings=embeddings
-            )
-            self.logger.logger.info(f"Successfully added {len(ids)} images to collection '{collection_name}'")
-        except Exception as e:
-            self.logger.logger.error(f"Error adding images to collection '{collection_name}': {e}")
-            raise e
+    # def add_images(self, ids, metadatas, embeddings, collection_name="clinic_data"):
+    #     # For the multimodal stretch goal, we insert using precomputed embeddings
+    #     collection = self._get_collection(collection_name)
+    #     try:
+    #         collection.add(
+    #             ids=ids,
+    #             metadatas=metadatas,
+    #             embeddings=embeddings
+    #         )
+    #         self.logger.logger.info(f"Successfully added {len(ids)} images to collection '{collection_name}'")
+    #     except Exception as e:
+    #         self.logger.logger.error(f"Error adding images to collection '{collection_name}': {e}")
+    #         raise e
     def get_all_document(self):
         return self
-        
+if __name__ == "__main__":
+    vs = VectorStore()
+    
+    

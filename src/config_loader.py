@@ -1,9 +1,10 @@
 """config_loader.py — loads settings.yaml into a Config object."""
 import os
 from pathlib import Path
-
+from typing import Any, Dict, List, Optional
 import yaml
 from dotenv import load_dotenv
+
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 for env_path in (ROOT_DIR / ".env", ROOT_DIR / "env"):
@@ -13,20 +14,26 @@ for env_path in (ROOT_DIR / ".env", ROOT_DIR / "env"):
 # Load environment variables from .env or env
 
 class ConfigLoader:
-    config = {}
-    config_path = None
-    env_vars = {}
-    load_env_vars = True
+    # config = {}
+    # config_path = None
+    # env_vars = {}
+    # load_env_vars = True
     env_file = ".env"
     def __init__(self, config_path=None):
+         # Use absolute path to avoid confusion in Colab
         if config_path is None:
-            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config", "settings.yaml")
+            config_path = os.path.join(os.getcwd(), "config", "settings.yaml")
         self.config_path = os.path.abspath(config_path)
+        self.config = {}
         self.load()
 
-    def get(self, key, default=None):
-        if key in self.env_vars:
-            return self.env_vars[key]
+    def get(self, key, default=Optional[Any] or List[Any] or Dict[Any, Any]):
+        """Retrieve a configuration value by key, with an optional default."""
+        if not self.config:
+            self.load()
+        
+            return self.config.get(key, default)
+
         return self.config.get(key, default)
 
     def get_model_setting(self, name, default=None):
@@ -52,10 +59,11 @@ class ConfigLoader:
         return self.config
             
     def load(self):
-        if self.load_env_vars:
-            self.env_vars = {k: v for k, v in os.environ.items() if k.isupper()}
+        if not os.path.exists(self.config_path):
+            print(f"Warning: Config file not found at {self.config_path}")
+            return {}
         with open(self.config_path, "r") as f:
-            self.config = yaml.safe_load(f)
+            self.config = yaml.safe_load(f) or {}
         return self.config
 
 
