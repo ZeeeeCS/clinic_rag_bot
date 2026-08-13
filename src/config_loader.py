@@ -14,13 +14,10 @@ for env_path in (ROOT_DIR / ".env", ROOT_DIR / "env"):
 # Load environment variables from .env or env
 
 class ConfigLoader:
-    # config = {}
-    # config_path = None
-    # env_vars = {}
-    # load_env_vars = True
+
     env_file = ".env"
     def __init__(self, config_path=None):
-         # Use absolute path to avoid confusion in Colab
+
         if config_path is None:
             config_path = os.path.join(os.getcwd(), "config", "settings.yaml")
         self.config_path = os.path.abspath(config_path)
