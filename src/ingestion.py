@@ -65,9 +65,4 @@ class Ingestion:
                 source=item["source"],
             )
 
-    def ingest_all(self):
-        self.ingest_nhs()
-        self.ingest_mayo()
-        self.ingest_medlineplus()
-        return self.vector_store
-
+ 
